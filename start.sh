@@ -43,7 +43,7 @@ fi
 
 source .venv/bin/activate
 echo -e "${BLUE}[backend]${NC} Installing dependencies..."
-pip install -r requirements.txt -q
+python3 pip install -r requirements.txt -q
 
 # Create the database if it doesn't exist (Postgres.app uses current OS user, no password)
 echo -e "${BLUE}[backend]${NC} Ensuring database exists..."
