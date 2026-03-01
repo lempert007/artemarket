@@ -52,7 +52,7 @@ export default function ChartsPage() {
     );
   }
 
-  if (!entries || entries.length === 0) {
+  if (!Array.isArray(entries) || entries.length === 0) {
     return (
       <Box sx={{ textAlign: "center", mt: 6 }}>
         <Typography color="text.secondary">No data yet — place some bets!</Typography>
