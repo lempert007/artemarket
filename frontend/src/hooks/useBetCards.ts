@@ -44,7 +44,7 @@ export function useCreateBetCard() {
 export function useResolveBetCard() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ cardId, outcome }: { cardId: string; outcome: "yes" | "no" }) =>
+    mutationFn: ({ cardId, outcome }: { cardId: string; outcome: "yes" | "no" | "cancel" }) =>
       resolveBetCard(cardId, outcome),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["bet-cards"] });

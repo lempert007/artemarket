@@ -22,7 +22,7 @@ interface Props {
 
 export default function ResolveBetDialog({ open, cardId, cardTitle, onClose }: Props) {
   const { mutate: resolve, isPending, error } = useResolveBetCard();
-  const [outcome, setOutcome] = useState<"yes" | "no" | null>(null);
+  const [outcome, setOutcome] = useState<"yes" | "no" | "cancel" | null>(null);
 
   function handleResolve() {
     if (!outcome) return;
@@ -54,7 +54,15 @@ export default function ResolveBetDialog({ open, cardId, cardTitle, onClose }: P
               <ToggleButton value="no" color="error">
                 NO
               </ToggleButton>
+              <ToggleButton value="cancel" color="warning">
+                Refund All
+              </ToggleButton>
             </ToggleButtonGroup>
+            {outcome === "cancel" && (
+              <Typography variant="caption" color="text.secondary">
+                Everyone gets their points back. No winners or losers.
+              </Typography>
+            )}
           </Stack>
           {error && (
             <Alert severity="error">

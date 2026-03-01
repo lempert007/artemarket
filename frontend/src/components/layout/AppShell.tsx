@@ -48,9 +48,14 @@ export default function AppShell() {
         }}
       >
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Typography variant="h6" sx={{ color: "primary.main" }}>
-            Artemarket
-          </Typography>
+          <Stack>
+            <Typography variant="h6" sx={{ color: "primary.main", lineHeight: 1.2 }}>
+              Artemarket
+            </Typography>
+            <Typography variant="caption" sx={{ color: "text.disabled", fontSize: "0.6rem" }}>
+              @made by tomer
+            </Typography>
+          </Stack>
           <Stack direction="row" alignItems="center" spacing={1}>
             <Chip
               label={`${user?.balance ?? 0} pts`}

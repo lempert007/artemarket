@@ -1,17 +1,52 @@
 import uuid
 
-from fastapi import APIRouter, Depends
-from sqlalchemy import func, select
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func, select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, require_admin
 from app.models.bet import Bet
 from app.models.bet_card import BetCard, BetCardStatus
 from app.models.user import User
-from app.schemas.user import LeaderboardEntry, UserStats
+from app.schemas.user import LeaderboardEntry, UserOut, UserStats
 
 router = APIRouter()
+
+
+@router.get("/", response_model=list[UserOut])
+async def list_users(
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(User).where(User.is_admin == False).order_by(User.username)
+    )
+    return list(result.scalars().all())
+
+
+@router.delete("/{user_id}", status_code=204)
+async def delete_user(
+    user_id: uuid.UUID,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.is_admin or user.username == "admin":
+        raise HTTPException(status_code=400, detail="Cannot delete admin users")
+
+    # Transfer bet cards to admin so created_by (NOT NULL) stays valid
+    await db.execute(
+        update(BetCard).where(BetCard.created_by == user_id).values(created_by=admin.id)
+    )
+    # Delete the user's bets
+    await db.execute(delete(Bet).where(Bet.user_id == user_id))
+    # Delete the user
+    await db.delete(user)
+    await db.commit()
 
 
 @router.get("/leaderboard", response_model=list[LeaderboardEntry])

@@ -61,6 +61,7 @@ export default function BetCardStack({ cards, isAdmin }: Props) {
           zIndex={visible.length - i}
           scale={i === 0 ? 1 : 1 - i * 0.04}
           onResolve={isAdmin && i === 0 ? () => setResolveOpen(true) : undefined}
+          onSkip={i === 0 ? () => setSkipped((s) => new Set([...s, card.id])) : undefined}
         />
       ))}
 

@@ -18,6 +18,7 @@ import {
 } from "recharts";
 
 import { useLeaderboard } from "../hooks/useLeaderboard";
+import { useBetCards } from "../hooks/useBetCards";
 import { useAuth } from "../context/AuthContext";
 
 const PRIMARY = "#2196F3";
@@ -42,6 +43,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 export default function ChartsPage() {
   const { data: entries, isLoading } = useLeaderboard();
+  const { data: openCards } = useBetCards("open");
   const { user } = useAuth();
 
   if (isLoading) {
@@ -272,6 +274,54 @@ export default function ChartsPage() {
                 )}
               />
             </RadialBarChart>
+          </ResponsiveContainer>
+        </Paper>
+      )}
+      {/* ── Chart 4: Current Odds per open card ── */}
+      {Array.isArray(openCards) && openCards.length > 0 && (
+        <Paper
+          elevation={0}
+          sx={{ p: 2, border: "1px solid rgba(33,150,243,0.12)" }}
+        >
+          <SectionTitle>Current Odds</SectionTitle>
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1.5 }}>
+            YES vs NO pool split for each open bet card
+          </Typography>
+          <ResponsiveContainer width="100%" height={Math.max(160, openCards.length * 44)}>
+            <BarChart
+              data={openCards.map((c) => ({
+                name: c.title.length > 22 ? c.title.slice(0, 22) + "…" : c.title,
+                YES: c.total_pool > 0 ? Math.round((c.yes_pool / c.total_pool) * 100) : 50,
+                NO: c.total_pool > 0 ? Math.round((c.no_pool / c.total_pool) * 100) : 50,
+              }))}
+              layout="vertical"
+              margin={{ top: 0, right: 16, left: 8, bottom: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(33,150,243,0.08)" />
+              <XAxis
+                type="number"
+                domain={[0, 100]}
+                unit="%"
+                tick={{ fontSize: 11, fill: "#78909C" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                type="category"
+                dataKey="name"
+                tick={{ fontSize: 11, fill: "#546E7A" }}
+                width={110}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                formatter={(v: number | undefined, name: string | undefined) => [`${v ?? 0}%`, name ?? ""]}
+                contentStyle={{ borderRadius: 8, border: "1px solid rgba(33,150,243,0.2)", fontSize: 12 }}
+              />
+              <Legend iconType="square" iconSize={8} />
+              <Bar dataKey="YES" fill={SECONDARY} radius={[0, 4, 4, 0]} maxBarSize={16} />
+              <Bar dataKey="NO" fill="#EF5350" radius={[0, 4, 4, 0]} maxBarSize={16} />
+            </BarChart>
           </ResponsiveContainer>
         </Paper>
       )}

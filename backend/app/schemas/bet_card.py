@@ -48,6 +48,6 @@ class ResolveRequest(BaseModel):
     @field_validator("outcome")
     @classmethod
     def validate_outcome(cls, v: str) -> str:
-        if v not in ("yes", "no"):
-            raise ValueError("Outcome must be 'yes' or 'no'")
+        if v not in ("yes", "no", "cancel"):
+            raise ValueError("Outcome must be 'yes', 'no', or 'cancel'")
         return v

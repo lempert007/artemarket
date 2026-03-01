@@ -72,6 +72,19 @@ async def resolve_card(
     bets_result = await db.execute(select(Bet).where(Bet.bet_card_id == card_id))
     bets = list(bets_result.scalars().all())
 
+    if outcome == "cancel":
+        # Refund everyone, no winner
+        for bet in bets:
+            bet.payout = bet.amount
+            await db.execute(
+                update(User).where(User.id == bet.user_id).values(balance=User.balance + bet.amount)
+            )
+        card.outcome = BetCardOutcome.cancel
+        card.status = BetCardStatus.resolved
+        await db.commit()
+        await db.refresh(card)
+        return card
+
     winning_bets = [b for b in bets if b.choice == outcome]
     losing_bets = [b for b in bets if b.choice != outcome]
 

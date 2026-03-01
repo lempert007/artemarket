@@ -19,6 +19,7 @@ class BetCardStatus(str, enum.Enum):
 class BetCardOutcome(str, enum.Enum):
     yes = "yes"
     no = "no"
+    cancel = "cancel"
 
 
 class BetCard(Base):

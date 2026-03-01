@@ -21,7 +21,7 @@ export async function createBetCard(data: {
   return res.data;
 }
 
-export async function resolveBetCard(cardId: string, outcome: "yes" | "no"): Promise<BetCardOut> {
+export async function resolveBetCard(cardId: string, outcome: "yes" | "no" | "cancel"): Promise<BetCardOut> {
   const res = await client.patch(`/bet-cards/${cardId}/resolve`, { outcome });
   return res.data;
 }

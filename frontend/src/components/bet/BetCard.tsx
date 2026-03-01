@@ -1,7 +1,7 @@
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import CloseIcon from "@mui/icons-material/Close";
 import GavelIcon from "@mui/icons-material/Gavel";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import { Box, Button, Chip, LinearProgress, Paper, Stack, Typography } from "@mui/material";
+import { Box, Button, Chip, IconButton, Paper, Stack, Typography } from "@mui/material";
 import type { BetCardOut } from "../../types";
 import type { SwipeState } from "../../hooks/useSwipe";
 import SwipeHint from "./SwipeHint";
@@ -18,15 +18,34 @@ interface Props {
   scale?: number;
   isTop: boolean;
   onResolve?: () => void;
+  onSkip?: () => void;
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function OddsBar({ label, pts, pct, color }: { label: string; pts: number; pct: number; color: string }) {
+  return (
+    <Stack direction="row" alignItems="center" spacing={1}>
+      <Typography variant="caption" sx={{ fontWeight: 700, color, width: 28 }}>
+        {label}
+      </Typography>
+      <Box sx={{ flex: 1, bgcolor: `${color}18`, borderRadius: 2, overflow: "hidden", height: 10 }}>
+        <Box
+          sx={{
+            width: `${pct}%`,
+            height: "100%",
+            bgcolor: color,
+            borderRadius: 2,
+            transition: "width 0.4s ease",
+          }}
+        />
+      </Box>
+      <Typography variant="caption" sx={{ color, fontWeight: 600, width: 32, textAlign: "right" }}>
+        {Math.round(pct)}%
+      </Typography>
+      <Typography variant="caption" color="text.secondary" sx={{ width: 52, textAlign: "right" }}>
+        {pts} pts
+      </Typography>
+    </Stack>
+  );
 }
 
 export default function BetCard({
@@ -41,8 +60,10 @@ export default function BetCard({
   scale = 1,
   isTop,
   onResolve,
+  onSkip,
 }: Props) {
   const yesPercent = card.total_pool > 0 ? (card.yes_pool / card.total_pool) * 100 : 50;
+  const noPercent = 100 - yesPercent;
 
   return (
     <Paper
@@ -124,9 +145,27 @@ export default function BetCard({
           px: 3,
           pt: 3,
           pb: 2,
+          position: "relative",
         }}
       >
-        <Typography variant="h6" sx={{ lineHeight: 1.3 }}>
+        {/* Skip (X) button */}
+        {isTop && onSkip && (
+          <IconButton
+            size="small"
+            onClick={(e) => { e.stopPropagation(); onSkip(); }}
+            onPointerDown={(e) => e.stopPropagation()}
+            sx={{
+              position: "absolute",
+              top: 8,
+              right: 8,
+              color: "text.disabled",
+              "&:hover": { color: "text.secondary", bgcolor: "rgba(0,0,0,0.04)" },
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        )}
+        <Typography variant="h6" sx={{ lineHeight: 1.3, pr: onSkip ? 4 : 0 }}>
           {card.title}
         </Typography>
         <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.75 }}>
@@ -145,45 +184,19 @@ export default function BetCard({
         <Box sx={{ flexGrow: 1 }} />
 
         {/* Pool info */}
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Chip
-            label={`Pool: ${card.total_pool} pts`}
-            color="primary"
-            variant="outlined"
-            size="small"
-          />
-          <Stack direction="row" alignItems="center" spacing={0.5}>
-            <AccessTimeIcon sx={{ fontSize: 13, color: "text.secondary" }} />
-            <Typography variant="caption" color="text.secondary">
-              {formatDate(card.closes_at)}
-            </Typography>
-          </Stack>
-        </Stack>
+        <Chip
+          label={`Pool: ${card.total_pool} pts`}
+          color="primary"
+          variant="outlined"
+          size="small"
+          sx={{ alignSelf: "flex-start" }}
+        />
 
-        {/* YES/NO bar */}
-        <Box>
-          <LinearProgress
-            variant="determinate"
-            value={yesPercent}
-            sx={{
-              height: 8,
-              borderRadius: 4,
-              backgroundColor: "rgba(239,83,80,0.15)",
-              "& .MuiLinearProgress-bar": {
-                backgroundColor: "secondary.main",
-                borderRadius: 4,
-              },
-            }}
-          />
-          <Stack direction="row" justifyContent="space-between" sx={{ mt: 0.5 }}>
-            <Typography variant="caption" sx={{ color: "secondary.main", fontWeight: 600 }}>
-              YES {card.yes_pool} pts
-            </Typography>
-            <Typography variant="caption" sx={{ color: "error.main", fontWeight: 600 }}>
-              NO {card.no_pool} pts
-            </Typography>
-          </Stack>
-        </Box>
+        {/* Odds bars */}
+        <Stack spacing={0.75}>
+          <OddsBar label="YES" pts={card.yes_pool} pct={yesPercent} color="#26C6DA" />
+          <OddsBar label="NO" pts={card.no_pool} pct={noPercent} color="#EF5350" />
+        </Stack>
 
         {/* Swipe hint text */}
         {isTop && (

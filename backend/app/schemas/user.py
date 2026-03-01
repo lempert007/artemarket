@@ -1,8 +1,10 @@
+import uuid
+
 from pydantic import BaseModel
 
 
 class UserOut(BaseModel):
-    id: str
+    id: uuid.UUID
     username: str
     is_admin: bool
     balance: int

@@ -18,7 +18,7 @@ export interface BetCardOut {
   closes_at: string;
   resolves_at: string | null;
   status: "open" | "closed" | "resolved";
-  outcome: "yes" | "no" | null;
+  outcome: "yes" | "no" | "cancel" | null;
   total_pool: number;
   yes_pool: number;
   no_pool: number;
@@ -43,6 +43,13 @@ export interface LeaderboardEntry {
   total_bets: number;
   won: number;
   win_rate: number;
+}
+
+export interface CardBetEntry {
+  username: string;
+  choice: "yes" | "no";
+  amount: number;
+  payout: number | null;
 }
 
 export interface UserStats {

@@ -25,6 +25,15 @@ class BetCreate(BaseModel):
         return v
 
 
+class CardBetEntry(BaseModel):
+    username: str
+    choice: str
+    amount: int
+    payout: Optional[int]
+
+    model_config = {"from_attributes": True}
+
+
 class BetOut(BaseModel):
     id: str
     bet_card_id: str
