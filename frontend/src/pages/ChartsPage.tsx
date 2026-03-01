@@ -293,6 +293,7 @@ export default function ChartsPage() {
                 name: c.title.length > 22 ? c.title.slice(0, 22) + "…" : c.title,
                 YES: c.total_pool > 0 ? Math.round((c.yes_pool / c.total_pool) * 100) : 50,
                 NO: c.total_pool > 0 ? Math.round((c.no_pool / c.total_pool) * 100) : 50,
+                total_pool: c.total_pool,
               }))}
               layout="vertical"
               margin={{ top: 0, right: 16, left: 8, bottom: 0 }}
@@ -315,8 +316,18 @@ export default function ChartsPage() {
                 tickLine={false}
               />
               <Tooltip
-                formatter={(v: number | undefined, name: string | undefined) => [`${v ?? 0}%`, name ?? ""]}
-                contentStyle={{ borderRadius: 8, border: "1px solid rgba(33,150,243,0.2)", fontSize: 12 }}
+                content={({ payload, label }) => {
+                  if (!payload?.length) return null;
+                  const d = payload[0].payload as { YES: number; NO: number; total_pool: number };
+                  return (
+                    <Box sx={{ background: "#fff", border: "1px solid rgba(33,150,243,0.2)", borderRadius: 2, p: 1, fontSize: 12 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 700, display: "block", mb: 0.5 }}>{label}</Typography>
+                      <Typography variant="caption" sx={{ color: SECONDARY, display: "block" }}>YES {d.YES}%</Typography>
+                      <Typography variant="caption" sx={{ color: "#EF5350", display: "block" }}>NO {d.NO}%</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>Pool: {d.total_pool} pts</Typography>
+                    </Box>
+                  );
+                }}
               />
               <Legend iconType="square" iconSize={8} />
               <Bar dataKey="YES" fill={SECONDARY} radius={[0, 4, 4, 0]} maxBarSize={16} />
