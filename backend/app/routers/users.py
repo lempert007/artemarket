@@ -20,7 +20,7 @@ async def leaderboard(
     db: AsyncSession = Depends(get_db),
 ):
     users_result = await db.execute(
-        select(User).order_by(User.balance.desc()).limit(50)
+        select(User).where(User.is_admin == False).order_by(User.balance.desc()).limit(50)
     )
     users = list(users_result.scalars().all())
 
