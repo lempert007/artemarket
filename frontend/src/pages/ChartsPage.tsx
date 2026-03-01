@@ -127,7 +127,7 @@ export default function ChartsPage() {
               tickLine={false}
             />
             <Tooltip
-              formatter={(v: number) => [`${v} pts`, "Balance"]}
+              formatter={(v: number | undefined) => [`${v ?? 0} pts`, "Balance"]}
               contentStyle={{ borderRadius: 8, border: "1px solid rgba(33,150,243,0.2)", fontSize: 12 }}
             />
             <Bar dataKey="balance" radius={[0, 6, 6, 0]} maxBarSize={28}>
@@ -251,7 +251,7 @@ export default function ChartsPage() {
                   fill: "#fff",
                   fontSize: 10,
                   fontWeight: 700,
-                  formatter: (v: number) => (v > 0 ? `${v}%` : ""),
+                  formatter: (v: any) => (v && Number(v) > 0 ? `${v}%` : ""),
                 }}
               >
                 {radialData.map((d, i) => (
@@ -259,7 +259,7 @@ export default function ChartsPage() {
                 ))}
               </RadialBar>
               <Tooltip
-                formatter={(v: number, _k, props) => [`${v}%`, props.payload.name]}
+                formatter={(v: number | undefined, _k, props) => [`${v ?? 0}%`, props.payload?.name]}
                 contentStyle={{ borderRadius: 8, border: "1px solid rgba(33,150,243,0.2)", fontSize: 12 }}
               />
               <Legend
